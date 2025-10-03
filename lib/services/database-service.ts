@@ -6,8 +6,19 @@ export class DatabaseService {
   // Create a new crime report
   async createCrimeReport(request: CrimeReportRequest, userId: string): Promise<CrimeReport> {
     try {
+      console.log('🔍 Debug: Creating crime report with data:', {
+        location: request.location,
+        description: request.description,
+        mediaUrls: request.mediaUrls?.length || 0,
+        category: request.category,
+        priority: request.priority,
+        hasAiAnalysis: !!request.aiAnalysis,
+        userId
+      });
+      
       // First, create or get the user
       const user = await this.getOrCreateUser(userId);
+      console.log('✅ Debug: User found/created:', user.id);
       
       // Create the crime report
       const crimeReport = await prisma.crimeReport.create({
@@ -15,8 +26,8 @@ export class DatabaseService {
           userId: user.id,
           location: request.location,
           description: request.description,
-          mediaUrls: JSON.stringify([]), // Will be updated after media processing
-          mediaType: this.determineMediaType(request.mediaFiles[0]),
+          mediaUrls: JSON.stringify(request.mediaUrls || []), // Cloudinary URLs
+          mediaType: request.mediaFiles.length > 0 ? this.determineMediaType(request.mediaFiles[0]) : 'PHOTO',
           priority: request.priority.toUpperCase() as any,
           category: request.category,
           status: 'PENDING',
@@ -77,7 +88,19 @@ export class DatabaseService {
       
       return mappedReport;
     } catch (error) {
-      console.error('Error creating crime report:', error);
+      console.error('❌ Debug: Error creating crime report:', error);
+      console.error('❌ Debug: Error details:', {
+        message: error instanceof Error ? error.message : 'Unknown error',
+        stack: error instanceof Error ? error.stack : undefined,
+        request: {
+          location: request.location,
+          description: request.description,
+          category: request.category,
+          priority: request.priority,
+          mediaFiles: request.mediaFiles?.length || 0,
+          mediaUrls: request.mediaUrls?.length || 0
+        }
+      });
       
       // If database is not available, create a mock response for development
       if (error instanceof Error && (

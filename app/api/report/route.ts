@@ -2,9 +2,11 @@ import { NextRequest, NextResponse } from 'next/server';
 import { CrimeReportService } from '@/lib/services/crime-report-service';
 import { CrimeReportRequest } from '@/lib/types/crime-report';
 import { PhantomWalletService } from '@/lib/services/phantom-wallet-service';
+import { CloudinaryService } from '@/lib/services/cloudinary-service';
 
 const crimeReportService = new CrimeReportService();
 const phantomWalletService = new PhantomWalletService();
+const cloudinaryService = new CloudinaryService();
 
 export async function POST(request: NextRequest) {
   try {
@@ -58,11 +60,45 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // Upload images to Cloudinary (or fallback to base64)
+    let mediaUrls: string[] = [];
+    try {
+      console.log('🔍 Debug: Attempting to upload images...');
+      
+      // Try Cloudinary first
+      try {
+        const uploadResults = await cloudinaryService.uploadMultipleImages(mediaFiles, 'crime-reports');
+        mediaUrls = uploadResults.map(result => result.secure_url);
+        console.log('✅ Debug: Images uploaded to Cloudinary successfully:', mediaUrls);
+      } catch (cloudinaryError) {
+        console.log('⚠️ Debug: Cloudinary upload failed, using base64 fallback:', cloudinaryError instanceof Error ? cloudinaryError.message : 'Unknown error');
+        
+        // Fallback to base64 storage
+        for (const file of mediaFiles) {
+          const buffer = await file.arrayBuffer();
+          const base64 = Buffer.from(buffer).toString('base64');
+          const dataUrl = `data:${file.type};base64,${base64}`;
+          mediaUrls.push(dataUrl);
+        }
+        console.log('✅ Debug: Images stored as base64:', mediaUrls.length, 'files');
+      }
+    } catch (error) {
+      console.error('❌ Debug: Failed to process images:', error);
+      return NextResponse.json(
+        { 
+          error: 'Failed to process images. Please try again.',
+          details: error instanceof Error ? error.message : 'Unknown error'
+        },
+        { status: 500 }
+      );
+    }
+
     // Create crime report request
     const crimeReportRequest: CrimeReportRequest = {
       location,
       description,
       mediaFiles,
+      mediaUrls,
       category,
       priority,
       coordinates: latitude && longitude ? {

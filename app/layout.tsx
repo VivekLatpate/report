@@ -25,7 +25,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${dmSans.variable} antialiased`}>
+      <body className={`${dmSans.variable} antialiased`} suppressHydrationWarning={true}>
         <CrimeReportNav />
         <main>
           {children}

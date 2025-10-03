@@ -51,6 +51,7 @@
     "@solana/web3.js": "^1.98.4",
     "autoprefixer": "^10.4.20",
     "class-variance-authority": "^0.7.1",
+    "cloudinary": "^2.7.0",
     "clsx": "^2.1.1",
     "cmdk": "1.0.4",
     "date-fns": "latest",

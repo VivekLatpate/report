@@ -447,25 +447,35 @@ export default function AdminCheckRequestPage() {
                                   {/* Media Display */}
                                   <div>
                                     <h3 className="font-semibold mb-2">Media Evidence</h3>
-                                    <div className="grid grid-cols-2 gap-4">
-                                      {selectedReport.mediaUrls.map((url, index) => (
-                                        <div key={index} className="aspect-square rounded-lg overflow-hidden border">
-                                          {selectedReport.mediaType === 'video' ? (
-                                            <video
-                                              src={`data:video/mp4;base64,${url}`}
-                                              className="w-full h-full object-cover"
-                                              controls
-                                            />
-                                          ) : (
-                                            <img
-                                              src={`data:image/jpeg;base64,${url}`}
-                                              alt={`Evidence ${index + 1}`}
-                                              className="w-full h-full object-cover"
-                                            />
-                                          )}
-                                        </div>
-                                      ))}
-                                    </div>
+                                    {selectedReport.mediaUrls.length > 0 ? (
+                                      <div className="grid grid-cols-2 gap-4">
+                                        {selectedReport.mediaUrls.map((url, index) => (
+                                          <div key={index} className="aspect-square rounded-lg overflow-hidden border">
+                                            {url.includes('video') || selectedReport.mediaType === 'video' ? (
+                                              <video
+                                                src={url}
+                                                className="w-full h-full object-cover"
+                                                controls
+                                              />
+                                            ) : (
+                                              <img
+                                                src={url}
+                                                alt={`Evidence ${index + 1}`}
+                                                className="w-full h-full object-cover"
+                                                onError={(e) => {
+                                                  console.error('Failed to load image:', url);
+                                                  e.currentTarget.src = '/placeholder.jpg';
+                                                }}
+                                              />
+                                            )}
+                                          </div>
+                                        ))}
+                                      </div>
+                                    ) : (
+                                      <div className="text-center py-8 text-gray-500">
+                                        <p>No media evidence available</p>
+                                      </div>
+                                    )}
                                   </div>
 
                                   {/* Report Details */}

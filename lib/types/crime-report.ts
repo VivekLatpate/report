@@ -47,6 +47,7 @@ export interface CrimeReportRequest {
   location: string;
   description: string;
   mediaFiles: File[];
+  mediaUrls?: string[];
   category: string;
   priority: 'low' | 'medium' | 'high' | 'critical';
   coordinates?: {
