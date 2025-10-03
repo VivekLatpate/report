@@ -1,0 +1,166 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  role      UserRole @default(USER)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  crimeReports CrimeReport[]
+  verifications HumanVerification[]
+
+  @@map("users")
+}
+
+model CrimeReport {
+  id          String   @id @default(cuid())
+  userId      String
+  timestamp   DateTime @default(now())
+  location    String
+  description String
+  mediaUrls   String // JSON string of media URLs
+  mediaType   MediaType
+  status      ReportStatus @default(PENDING)
+  priority    Priority @default(MEDIUM)
+  category    String
+  
+  // Coordinates (optional)
+  latitude    Float?
+  longitude   Float?
+  
+  // Solana wallet for rewards
+  walletAddress String?
+  
+  // AI Analysis
+  aiAnalysis  AIAnalysis?
+  
+  // Human Verification
+  humanVerification HumanVerification?
+  
+  // Solana Reward
+  solanaReward SolanaReward?
+  
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("crime_reports")
+}
+
+model AIAnalysis {
+  id          String   @id @default(cuid())
+  crimeReportId String @unique
+  confidence  Int      // 0-100
+  crimeType   String
+  severity    Severity
+  description String
+  riskFactors String // JSON string of risk factors
+  recommendations String // JSON string of recommendations
+  
+  // Extracted entities
+  people      String // JSON string of people
+  vehicles    String // JSON string of vehicles
+  weapons     String // JSON string of weapons
+  locations   String // JSON string of locations
+  objects     String // JSON string of objects
+  
+  // Relations
+  crimeReport CrimeReport @relation(fields: [crimeReportId], references: [id], onDelete: Cascade)
+  
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("ai_analyses")
+}
+
+model HumanVerification {
+  id          String   @id @default(cuid())
+  crimeReportId String @unique
+  verifiedBy  String
+  verifiedAt  DateTime @default(now())
+  isVerified  Boolean
+  notes       String
+  confidence  Int      // 0-100
+  requiresFollowUp Boolean @default(false)
+  
+  // Relations
+  crimeReport CrimeReport @relation(fields: [crimeReportId], references: [id], onDelete: Cascade)
+  admin       User       @relation(fields: [verifiedBy], references: [id])
+  
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("human_verifications")
+}
+
+model SolanaReward {
+  id          String   @id @default(cuid())
+  crimeReportId String @unique
+  recipientAddress String
+  amount      Float    // Amount in SOL
+  transactionId String?
+  status      RewardStatus @default(PENDING)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relations
+  crimeReport CrimeReport @relation(fields: [crimeReportId], references: [id], onDelete: Cascade)
+  
+  @@map("solana_rewards")
+}
+
+// Enums
+enum UserRole {
+  USER
+  ADMIN
+  MODERATOR
+}
+
+enum MediaType {
+  PHOTO
+  VIDEO
+}
+
+enum ReportStatus {
+  PENDING
+  VERIFIED
+  REJECTED
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum Severity {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum RewardStatus {
+  PENDING
+  SENT
+  FAILED
+}
