@@ -193,6 +193,19 @@ export default function AdminCheckRequestPage() {
     });
   };
 
+  const formatCategory = (category: string) => {
+    const categoryMap = {
+      'SEXUAL_VIOLENCE': 'Sexual Violence',
+      'DOMESTIC_VIOLENCE': 'Domestic Violence',
+      'STREET_CRIMES': 'Street Crimes',
+      'MOB_VIOLENCE_LYNCHING': 'Mob Violence & Lynching',
+      'ROAD_RAGE_INCIDENTS': 'Road Rage Incidents',
+      'CYBERCRIMES': 'Cybercrimes',
+      'DRUG': 'Drug'
+    };
+    return categoryMap[category as keyof typeof categoryMap] || category;
+  };
+
   if (isLoading) {
     return (
       <div className="container mx-auto px-4 py-8">
@@ -342,13 +355,13 @@ export default function AdminCheckRequestPage() {
                      </SelectTrigger>
                      <SelectContent>
                        <SelectItem value="all">All categories</SelectItem>
-                       {Object.keys(stats.reportsByCategory)
-                         .filter(category => category && category.trim() !== '')
-                         .map((category) => (
-                           <SelectItem key={category} value={category}>
-                             {category}
-                           </SelectItem>
-                         ))}
+                       <SelectItem value="SEXUAL_VIOLENCE">Sexual Violence</SelectItem>
+                       <SelectItem value="DOMESTIC_VIOLENCE">Domestic Violence</SelectItem>
+                       <SelectItem value="STREET_CRIMES">Street Crimes</SelectItem>
+                       <SelectItem value="MOB_VIOLENCE_LYNCHING">Mob Violence & Lynching</SelectItem>
+                       <SelectItem value="ROAD_RAGE_INCIDENTS">Road Rage Incidents</SelectItem>
+                       <SelectItem value="CYBERCRIMES">Cybercrimes</SelectItem>
+                       <SelectItem value="DRUG">Drug</SelectItem>
                      </SelectContent>
                    </Select>
                  </div>
@@ -386,7 +399,7 @@ export default function AdminCheckRequestPage() {
                               {report.priority}
                             </Badge>
                             <Badge variant="outline">
-                              {report.category}
+                              {formatCategory(report.category)}
                             </Badge>
                           </div>
 
@@ -484,7 +497,7 @@ export default function AdminCheckRequestPage() {
                                       <h3 className="font-semibold mb-2">Report Information</h3>
                                       <div className="space-y-2 text-sm">
                                         <p><strong>Location:</strong> {selectedReport.location}</p>
-                                        <p><strong>Category:</strong> {selectedReport.category}</p>
+                                        <p><strong>Category:</strong> {formatCategory(selectedReport.category)}</p>
                                         <p><strong>Priority:</strong> {selectedReport.priority}</p>
                                         <p><strong>Submitted:</strong> {formatDate(selectedReport.timestamp)}</p>
                                       </div>
@@ -617,7 +630,7 @@ export default function AdminCheckRequestPage() {
                 <div className="space-y-2">
                   {Object.entries(stats.reportsByCategory).map(([category, count]) => (
                     <div key={category} className="flex justify-between items-center">
-                      <span className="text-sm font-medium">{category}</span>
+                      <span className="text-sm font-medium">{formatCategory(category)}</span>
                       <Badge variant="secondary">{count}</Badge>
                     </div>
                   ))}

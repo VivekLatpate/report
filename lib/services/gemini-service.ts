@@ -24,17 +24,26 @@ export class GeminiService {
         Description: ${description}
         
         Please analyze the image and provide:
-        1. Crime type classification
+        1. Crime category classification (MUST be one of these exact values):
+           - SEXUAL_VIOLENCE
+           - DOMESTIC_VIOLENCE
+           - STREET_CRIMES
+           - MOB_VIOLENCE_LYNCHING
+           - ROAD_RAGE_INCIDENTS
+           - CYBERCRIMES
+           - DRUG
         2. Severity level (low/medium/high/critical)
         3. Confidence score (0-100)
         4. Risk factors identified
         5. Recommendations for law enforcement
         6. Extracted entities (people, vehicles, weapons, locations, objects)
         
+        IMPORTANT: The crimeType field MUST be exactly one of the 7 categories listed above.
+        
         Respond in JSON format with the following structure:
         {
           "confidence": number,
-          "crimeType": "string",
+          "crimeType": "SEXUAL_VIOLENCE|DOMESTIC_VIOLENCE|STREET_CRIMES|MOB_VIOLENCE_LYNCHING|ROAD_RAGE_INCIDENTS|CYBERCRIMES|DRUG",
           "severity": "low|medium|high|critical",
           "description": "string",
           "riskFactors": ["string"],
@@ -99,17 +108,26 @@ export class GeminiService {
         Description: ${description}
         
         Please analyze the video and provide:
-        1. Crime type classification
+        1. Crime category classification (MUST be one of these exact values):
+           - SEXUAL_VIOLENCE
+           - DOMESTIC_VIOLENCE
+           - STREET_CRIMES
+           - MOB_VIOLENCE_LYNCHING
+           - ROAD_RAGE_INCIDENTS
+           - CYBERCRIMES
+           - DRUG
         2. Severity level (low/medium/high/critical)
         3. Confidence score (0-100)
         4. Risk factors identified
         5. Recommendations for law enforcement
         6. Extracted entities (people, vehicles, weapons, locations, objects)
         
+        IMPORTANT: The crimeType field MUST be exactly one of the 7 categories listed above.
+        
         Respond in JSON format with the following structure:
         {
           "confidence": number,
-          "crimeType": "string",
+          "crimeType": "SEXUAL_VIOLENCE|DOMESTIC_VIOLENCE|STREET_CRIMES|MOB_VIOLENCE_LYNCHING|ROAD_RAGE_INCIDENTS|CYBERCRIMES|DRUG",
           "severity": "low|medium|high|critical",
           "description": "string",
           "riskFactors": ["string"],
@@ -167,7 +185,7 @@ export class GeminiService {
   private getDefaultAnalysis(): AIAnalysis {
     return {
       confidence: 0,
-      crimeType: 'Unknown',
+      crimeType: 'STREET_CRIMES',
       severity: 'LOW',
       description: 'Analysis failed - manual review required',
       riskFactors: ['Manual review needed'],
